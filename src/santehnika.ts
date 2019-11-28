@@ -93,7 +93,11 @@ export async function getLinkElement(page: puppeteer.Page, bossLink: string) {
     for (; increment--;) {
         try {
 
-            if (!(increment % 3)) await timeoutPromise();
+            console.log(increment);
+
+            if (increment > 1000) continue;
+
+            if (!(increment % 5)) await timeoutPromise();
 
             console.log(increment);
             await timeoutPromise2s();
@@ -105,7 +109,7 @@ export async function getLinkElement(page: puppeteer.Page, bossLink: string) {
 
             const postsSelector = '.b-preview-product__title';
             await page.waitForSelector(postsSelector, {
-                timeout: 10000
+                timeout: 350000
             });
             console.log('postsSelector');
             const add = await page.$$eval(
@@ -114,17 +118,17 @@ export async function getLinkElement(page: puppeteer.Page, bossLink: string) {
                 }));
 
             console.log('postsSelector');
-            if (!fs.existsSync('urlSantech.json')) fs.writeFileSync('urlSantech.json', '[]');
+            if (!fs.existsSync('urlSantech3.json')) fs.writeFileSync('urlSantech3.json', '[]');
 
             let json = [];
             console.log('prev-open');
-            let arr = JSON.parse(fs.readFileSync('urlSantech.json', 'utf-8'));
+            let arr = JSON.parse(fs.readFileSync('urlSantech3.json', 'utf-8'));
             console.log('open');
 
             if (arr.length) { json = arr.map(val => val) };
             json = json.concat(add);
             console.log('prev-write');
-            fs.writeFileSync('urlSantech.json', JSON.stringify(json));
+            fs.writeFileSync('urlSantech3.json', JSON.stringify(json));
             console.log('write');
 
         } catch (error) {
@@ -251,10 +255,13 @@ export async function initialJsonArray(browser: puppeteer.Browser, arrayLink: st
                 try {
                     console.log(incr);
                     incr++;
-                    if (incr < 5) continue;
-                    if (!(incr % 5)) await timeoutPromise();
-                    if (!(incr % 500)){                        
-                        for (let i = 5;i--;) {
+                    if (incr < 11) continue;
+                    if (!(incr % 5)) await timeoutPromise2s();
+                    if (!(incr % 10))
+                            await timeoutPromise();
+
+                    if (!(incr % 500)) {
+                        for (let i = 3; i--;) {
                             await timeoutPromise();
                         }
                     }
@@ -269,16 +276,21 @@ export async function initialJsonArray(browser: puppeteer.Browser, arrayLink: st
                     console.log(iterator);
                     console.log('iterator');
 
-                    
+
                     await timeoutPromise2s();
+
+                    const postsSelector = '.b-simple-button--style-default.p-card-b-spec__header-button.b-simple-button.b-simple-button--margin-auto.b-simple-button--status-initial';
+                    
+                    await pageSantehnika.waitForSelector(postsSelector, {
+                        timeout: 350000
+                    });
                     // const button1 = 
-                    await pageSantehnika.$eval('.b-simple-button--style-default.p-card-b-spec__header-button.b-simple-button.b-simple-button--margin-auto.b-simple-button--status-initial',
+                    
+                    await pageSantehnika.$eval(postsSelector,
                         (el: any) => el.click()
                     );
                     // const button2 = 
-                    await pageSantehnika.$eval('.p-card-b-media__main-content-event',
-                        (el: any) => el.click()
-                    );
+
                 } catch (err) {
                     console.log(err);
                     console.log('err');
@@ -341,16 +353,13 @@ export async function initialJsonArray(browser: puppeteer.Browser, arrayLink: st
                 //     '.p-card-b-spec__property-value', arr => arr.map(el => el.textContent)
                 // );
 
-
                 const prevpropertiesName = await getArrayName(pageSantehnika);
                 const prevpropertiesValue = await getArrayValue(pageSantehnika);
                 const name = await pageSantehnika.$eval('h1', el => el.textContent);
 
-
                 download.downloadArrayImage(model, linksImage)
                     .then(() => console.log('good'))
                     .catch(er => (console.log(er), console.log('er')));
-
 
                 let obj = {
                     name: name,
@@ -377,8 +386,15 @@ export async function initialJsonArray(browser: puppeteer.Browser, arrayLink: st
                     await fs.writeFileSync('products.json', '[]');
                 }
 
+                if (!fs.existsSync('finish.json')) {
+                    await fs.writeFileSync('finish.json', '[]');
+                }
+
                 let lastArray: Object[] = JSON.parse(fs.readFileSync("products.json", "utf8"));
                 let newArray = [];
+
+                let lastArrayFinish: Object[] = JSON.parse(fs.readFileSync("finish.json", "utf8"));
+                let newArrayFinish = [];
 
 
                 if (lastArray.length)
@@ -389,7 +405,13 @@ export async function initialJsonArray(browser: puppeteer.Browser, arrayLink: st
 
                 fs.writeFileSync('products.json', JSON.stringify(newArray));
 
-                arrayPushJson.push(obj)
+                if (lastArrayFinish.length)
+                    lastArrayFinish.map(val => newArrayFinish.push(val));
+
+                console.log(obj)
+                newArrayFinish.push(obj);
+
+                fs.writeFileSync('finish.json', JSON.stringify(newArrayFinish));
 
             } catch (error) {
                 console.log(error);
@@ -415,7 +437,7 @@ export async function put2File(page: puppeteer.Page, link: string) {
     });
     const postsSelector = '.b-card-p-card-gallery__image';
     await page.waitForSelector(postsSelector, {
-        timeout: 0
+        timeout: 35000
     });
     const add = await page.$$eval( // запрос списка ссылок
         postsSelector, postLinks => postLinks.map((link: any, _arrayJson) => {
@@ -473,7 +495,8 @@ export async function getArticle(page: puppeteer.Page) {
 
 (async () => {
     const browser: puppeteer.Browser = await puppeteer.launch({
-        headless: true
+        headless: true,
+        args: ['--no-sandbox', '--disable-setuid-sandbox']
     });
     const cookie: puppeteer.SetCookie[] = [ // cookie exported by google chrome plugin
         {
@@ -490,7 +513,7 @@ export async function getArticle(page: puppeteer.Page) {
 
     await page.setCookie(...cookie);
 
-    await getLinkElement(page, 'https://santehnika-online.ru/santehnika/');
+    // await getLinkElement(page, 'https://santehnika-online.ru/santehnika/');
 
     // const urls = ["https://santehnika-online.ru/product/unitaz_podvesnoy_villeroy_boch_memento_5628_10r1_alpin/"];
     // console.log(urls.length);
