@@ -81,7 +81,7 @@ export async function downloadArrayImage(filename: void | String, arrayLinkImage
   
 
   return new Promise((resolve, _reject) => {
-    for (let index = arrayLinkImage.length - 1; index--;) {
+    for (let index = arrayLinkImage.length; index--;) {
 
       let url = arrayLinkImage[index];
       console.log('url');

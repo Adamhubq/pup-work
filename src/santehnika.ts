@@ -93,8 +93,8 @@ export async function getLinkElement(page: puppeteer.Page, bossLink: string) {
     for (; increment--;) {
         try {
 
-		
-	    if (increment > 711) continue;
+	    	
+	    if (increment > 2203) continue;
             if (!(increment % 5)) await timeoutPromise();
 
             console.log(increment);
@@ -255,13 +255,13 @@ export async function initialJsonArray(browser: puppeteer.Browser, arrayLink: st
 		    
                     incr++;
 
-		    if (incr < 364) continue;
+		    if (incr < 6493) continue;
 
 
                     if (incr > 8000) continue;
-                    if (!(incr % 5)) await timeoutPromise2s();
 		    if (!(incr % 10)) await timeoutPromise();
- 
+		    await timeoutPromise2s();
+
                     if (!(incr % 500)) {
                         for (let i = 3;i--;) {
                             await timeoutPromise();
