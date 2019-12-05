@@ -1,6 +1,7 @@
 import * as puppeteer from "puppeteer";
 import * as fs from "fs";
 import * as download from "./download";
+// import * as  parse from "json2csv";
 // import * as request from "request";
 
 export const transl = {
@@ -93,8 +94,10 @@ export async function getLinkElement(page: puppeteer.Page, bossLink: string) {
     for (; increment--;) {
         try {
 
-	    	
-	    if (increment > 2203) continue;
+            console.log(increment);
+
+            if (increment > 848) continue;
+
             if (!(increment % 5)) await timeoutPromise();
 
             console.log(increment);
@@ -107,7 +110,7 @@ export async function getLinkElement(page: puppeteer.Page, bossLink: string) {
 
             const postsSelector = '.b-preview-product__title';
             await page.waitForSelector(postsSelector, {
-                timeout: 35000
+                timeout: 350000
             });
             console.log('postsSelector');
             const add = await page.$$eval(
@@ -116,17 +119,17 @@ export async function getLinkElement(page: puppeteer.Page, bossLink: string) {
                 }));
 
             console.log('postsSelector');
-            if (!fs.existsSync('urlSantech.json')) fs.writeFileSync('urlSantech.json', '[]');
+            if (!fs.existsSync('urlSantech3.json')) fs.writeFileSync('urlSantech3.json', '[]');
 
             let json = [];
             console.log('prev-open');
-            let arr = JSON.parse(fs.readFileSync('urlSantech.json', 'utf-8'));
+            let arr = JSON.parse(fs.readFileSync('urlSantech3.json', 'utf-8'));
             console.log('open');
 
             if (arr.length) { json = arr.map(val => val) };
             json = json.concat(add);
             console.log('prev-write');
-            fs.writeFileSync('urlSantech.json', JSON.stringify(json));
+            fs.writeFileSync('urlSantech3.json', JSON.stringify(json));
             console.log('write');
 
         } catch (error) {
@@ -231,39 +234,75 @@ export async function log(str) {
     console.log('0000000');
     console.log(str);
     console.log('0000000');
-    if (!fs.existsSync('log.json')) await fs.writeFileSync('log.json', '[]');
-    let arr = await JSON.parse(fs.readFileSync('log.json', 'utf-8'));
+    if (!fs.existsSync('log.json')) fs.writeFileSync('log.json', '[]');
+    let arr = JSON.parse(fs.readFileSync('log.json', 'utf-8'));
     let json = [];
     if (arr.length) { json = arr.map(val => val) };
     json.push(str);
     fs.writeFileSync('log.json', JSON.stringify(json));
 }
 
-export async function initialJsonArray(browser: puppeteer.Browser, arrayLink: string[]) {
+export async function initialJsonArray(arrayLink: string[]) {
     try {
+
+        let browser: puppeteer.Browser;
+
         console.log('initialJsonArray');
         let arrayPushJson: Array<Object> = new Array();
-        let pageSantehnika = await browser.newPage();
+
         // let pageVilleroyBoch = await browser.newPage();
         let incr = 0;
         console.log('initialJsonArray---iterable');
-        for (let i = arrayLink.length - 1; i--;) {
+        let cookie: puppeteer.SetCookie[];
+        for (let i = arrayLink.length; i--;) {
+            
+            console.log(incr);
+            incr++;
+            if (incr < 3450) continue;
+
+            browser = await puppeteer.launch({
+                headless: true,
+                args: ['--no-sandbox', '--disable-setuid-sandbox']
+            });
+            let pageSantehnika = await browser.newPage();
+
+            await pageSantehnika.setViewport({
+                width: 640,
+                height: 480,
+                deviceScaleFactor: 1,
+            });
+
+            cookie = [ // cookie exported by google chrome plugin
+                {
+                    "domain": "httpsbinales.org",
+                    "httpOnly": false,
+                    "name": '' + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15),
+                    "path": "/",
+                    "secure": false,
+                    "session": true,
+                    "value": '' + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
+                }
+            ];
+
+            await pageSantehnika.setCookie(...cookie);
+
+
+
             let iterator = arrayLink[i];
             try {
                 try {
-                    console.log(incr);
-		    
-                    incr++;
 
-		    if (incr < 6493) continue;
+                    if (!(incr % 10))
+                        await timeoutPromise();
+                    
+                    console.log('arrayLink[i]');
+                    console.log(arrayLink[i]);
+                    console.log('arrayLink[i]');
 
-
-                    if (incr > 8000) continue;
-		    if (!(incr % 10)) await timeoutPromise();
-		    await timeoutPromise2s();
+                    await timeoutPromise2s();
 
                     if (!(incr % 500)) {
-                        for (let i = 3;i--;) {
+                        for (let i = 3; i--;) {
                             await timeoutPromise();
                         }
                     }
@@ -278,20 +317,21 @@ export async function initialJsonArray(browser: puppeteer.Browser, arrayLink: st
                     console.log(iterator);
                     console.log('iterator');
 
-                    
+
                     await timeoutPromise2s();
-                    // const button1 = 
-		    const postsSelectot = '.b-simple-button--style-default.p-card-b-spec__header-button.b-simple-button.b-simple-button--margin-auto.b-simple-button--status-initial';
-                    
-		    await pageSantehnika.waitForSelector(postsSelectot, {
+
+                    const postsSelector = '.b-simple-button--style-default.p-card-b-spec__header-button.b-simple-button.b-simple-button--margin-auto.b-simple-button--status-initial';
+
+                    await pageSantehnika.waitForSelector(postsSelector, {
                         timeout: 350000
                     });
+                    // const button1 = 
 
-
-                    // const button2 = 
-                    await pageSantehnika.$eval('.p-card-b-media__main-content-event',
+                    await pageSantehnika.$eval(postsSelector,
                         (el: any) => el.click()
                     );
+                    // const button2 = 
+
                 } catch (err) {
                     console.log(err);
                     console.log('err');
@@ -354,16 +394,13 @@ export async function initialJsonArray(browser: puppeteer.Browser, arrayLink: st
                 //     '.p-card-b-spec__property-value', arr => arr.map(el => el.textContent)
                 // );
 
-
                 const prevpropertiesName = await getArrayName(pageSantehnika);
                 const prevpropertiesValue = await getArrayValue(pageSantehnika);
                 const name = await pageSantehnika.$eval('h1', el => el.textContent);
 
-
                 download.downloadArrayImage(model, linksImage)
                     .then(() => console.log('good'))
                     .catch(er => (console.log(er), console.log('er')));
-
 
                 let obj = {
                     name: name,
@@ -390,14 +427,15 @@ export async function initialJsonArray(browser: puppeteer.Browser, arrayLink: st
                     await fs.writeFileSync('products.json', '[]');
                 }
 
-
-		if (!fs.existsSync('finish.json')) {
+                if (!fs.existsSync('finish.json')) {
                     await fs.writeFileSync('finish.json', '[]');
                 }
 
-
                 let lastArray: Object[] = JSON.parse(fs.readFileSync("products.json", "utf8"));
                 let newArray = [];
+
+                let lastArrayFinish: Object[] = JSON.parse(fs.readFileSync("finish.json", "utf8"));
+                let newArrayFinish = [];
 
 
                 if (lastArray.length)
@@ -408,12 +446,7 @@ export async function initialJsonArray(browser: puppeteer.Browser, arrayLink: st
 
                 fs.writeFileSync('products.json', JSON.stringify(newArray));
 
-
-		let lastArrayFinish: Object[] = JSON.parse(fs.readFileSync("finish.json", "utf8"));
-                let newArrayFinish = [];
-                
-
-		if (lastArrayFinish.length)
+                if (lastArrayFinish.length)
                     lastArrayFinish.map(val => newArrayFinish.push(val));
 
                 console.log(obj)
@@ -421,15 +454,13 @@ export async function initialJsonArray(browser: puppeteer.Browser, arrayLink: st
 
                 fs.writeFileSync('finish.json', JSON.stringify(newArrayFinish));
 
-
-
-
-
             } catch (error) {
                 console.log(error);
                 i++
                 await timeoutPromise();
             }
+            await pageSantehnika.close()
+            await browser.close();
         }
 
         return arrayPushJson;
@@ -449,7 +480,7 @@ export async function put2File(page: puppeteer.Page, link: string) {
     });
     const postsSelector = '.b-card-p-card-gallery__image';
     await page.waitForSelector(postsSelector, {
-        timeout: 0
+        timeout: 35000
     });
     const add = await page.$$eval( // запрос списка ссылок
         postsSelector, postLinks => postLinks.map((link: any, _arrayJson) => {
@@ -506,35 +537,85 @@ export async function getArticle(page: puppeteer.Page) {
 }
 
 (async () => {
-    const browser: puppeteer.Browser = await puppeteer.launch({
-        headless: true,
-	args: ['--no-sandbox', '--disable-setuid-sandbox']
-    });
-    const cookie: puppeteer.SetCookie[] = [ // cookie exported by google chrome plugin
-        {
-            "domain": "httpsbin.org",
-            "httpOnly": false,
-            "name": "abracham",
-            "path": "/",
-            "secure": false,
-            "session": true,
-            "value": "value!"
-        }
-    ];
-    const page: puppeteer.Page = await browser.newPage();
+    // let browser: puppeteer.Browser;
+    
+    // browser = await puppeteer.launch({
+    //     headless: true,
+    //     args: ['--no-sandbox', '--disable-setuid-sandbox']
+    // });
+    // let pageSantehnika = await browser.newPage();
 
-    await page.setCookie(...cookie);
+    // await pageSantehnika.setViewport({
+    //     width: 640,
+    //     height: 480,
+    //     deviceScaleFactor: 1,
+    // });
 
-   // await getLinkElement(page, 'https://santehnika-online.ru/santehnika/');
+    // let cookie: puppeteer.SetCookie[];
 
-    // const urls = ["https://santehnika-online.ru/product/unitaz_podvesnoy_villeroy_boch_memento_5628_10r1_alpin/"];
-    // console.log(urls.length);
+    // cookie = [ // cookie exported by google chrome plugin
+    //     {
+    //         "domain": "httpsbinales.org",
+    //         "httpOnly": false,
+    //         "name": "Peter",
+    //         "path": "/",
+    //         "secure": false,
+    //         "session": true,
+    //         "value": `qwertys-ales`
+    //     }
+    // ];
+
+    // await pageSantehnika.setCookie(...cookie);
+
+    // try {
+    //     await pageSantehnika.goto('http://santehnika-online.ru/product/dushevoy_ugolok_vegas_glass_afp_fis_120_80_01_01_r_profil_belyy_steklo_prozrachnoe/');    
+        
+    //     let name = await pageSantehnika.$eval('h1', el => el.textContent);
+    //     console.log(name);
+
+    //     await pageSantehnika.goto('https://santehnika-online.ru/product/dushevoy_ugolok_vegas_glass_za_f_100_90_07_01_profil_matovyy_khrom_steklo_prozrachnoe/');    
+    //     name = await pageSantehnika.$eval('h1', el => el.textContent);
+    //     console.log(name);
+
+
+    // } catch (error) {
+    //     console.log(error)
+    // }
+    
+
+
+
+
+
+    // pageSantehnika.close();
+    // browser.close()
+
+
     try {
         let urls = fs.readFileSync("urlSantech.json", "utf8");
-        // fs.writeFileSync('testUrls.json', JSON.stringify(urls));l
-        const jspo = await initialJsonArray(browser, JSON.parse(urls));
+        const jspo = await initialJsonArray(JSON.parse(urls));
         fs.writeFileSync('test22.json', JSON.stringify(jspo));
-        await browser.close();
     } catch (error) {
+
     }
+    // urlSantech3Filtered - 3526 - 3764 
+    // urlSantech2Filtered - 3450 
+
+    // await page.goto('https://santehnika-online.ru/product/dushevoy_ugolok_vegas_glass_afp_fis_120_80_01_01_r_profil_belyy_steklo_prozrachnoe/');
+
+    // const linksImage = await page.$$eval(
+    //     '.p-card-b-media__photo-big', arr => arr.map(el => el.getAttribute('src'))
+    // );
+    // console.log(linksImage);
+    // console.log(linksImage.length);
+
+    // let urls1 = JSON.parse(fs.readFileSync("urlSantech.json", "utf8"));
+    // let urls2 = JSON.parse(fs.readFileSync("urlSantech1.json", "utf8"));
+    // let urls3 = JSON.parse(fs.readFileSync("urlSantech2.json", "utf8"));
+    // let psevdoUrls2: Object[] = urls2.filter(val => !(urls1.indexOf(val) + 1) );
+    // let psevdoUrls3: Object[] = urls3.filter(val => !(urls1.indexOf(val) + 1) );
+    // psevdoUrls3 = psevdoUrls3.filter(val => !(psevdoUrls2.indexOf(val) + 1) );
+    // psevdoUrls2 = psevdoUrls2.filter(val => !(psevdoUrls3.indexOf(val) + 1) );
+    // fs.writeFileSync('urlSantech3Filtered.json', JSON.stringify(psevdoUrls3));
+    // fs.writeFileSync('urlSantech2Filtered.json', JSON.stringify(psevdoUrls2));
 })();
