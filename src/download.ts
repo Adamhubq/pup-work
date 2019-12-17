@@ -87,9 +87,11 @@ export async function downloadArrayImage(filename: void | String, arrayLinkImage
       console.log('url');
       console.log(`https://santehnika-online.ru${url}`);
       console.log('url');
-      fs.createWriteStream(`Villeroys/${filename}_${index}.png`);
 
-      const fileStream = fs.createWriteStream(`Villeroys/${filename}_${index}.png`);
+      let name = `${filename}_${index}`
+      fs.createWriteStream(`Villeroys/${name.replace(/ /gim, '_')}.png`);
+
+      const fileStream = fs.createWriteStream(`Villeroys/${name.replace(/ /gim, '_')}.png`);
       https.get(`https://santehnika-online.ru${url}`, (resp) => {
         resp.pipe(fileStream)
       })

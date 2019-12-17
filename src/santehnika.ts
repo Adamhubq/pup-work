@@ -96,7 +96,7 @@ export async function getLinkElement(page: puppeteer.Page, bossLink: string) {
 
             console.log(increment);
 
-            if (increment > 848) continue;
+            if (increment > 22) continue;
 
             if (!(increment % 5)) await timeoutPromise();
 
@@ -258,19 +258,13 @@ export async function initialJsonArray(arrayLink: string[]) {
             
             console.log(incr);
             incr++;
-            if (incr < 3450) continue;
+            if (incr < 991) continue;
 
             browser = await puppeteer.launch({
                 headless: true,
                 args: ['--no-sandbox', '--disable-setuid-sandbox']
             });
             let pageSantehnika = await browser.newPage();
-
-            await pageSantehnika.setViewport({
-                width: 640,
-                height: 480,
-                deviceScaleFactor: 1,
-            });
 
             cookie = [ // cookie exported by google chrome plugin
                 {
@@ -292,7 +286,7 @@ export async function initialJsonArray(arrayLink: string[]) {
             try {
                 try {
 
-                    if (!(incr % 10))
+                    if (!(incr % 4))
                         await timeoutPromise();
                     
                     console.log('arrayLink[i]');
@@ -456,7 +450,7 @@ export async function initialJsonArray(arrayLink: string[]) {
 
             } catch (error) {
                 console.log(error);
-                i++
+                // i++
                 await timeoutPromise();
             }
             await pageSantehnika.close()
