@@ -1,6 +1,6 @@
 import * as puppeteer from "puppeteer";
 import * as fs from "fs";
-import * as download from "./download";
+// import * as download from "./download";
 // import * as  parse from "json2csv";
 // import * as request from "request";
 
@@ -86,6 +86,7 @@ export const transl = {
 
 
 export async function getLinkElement(page: puppeteer.Page, bossLink: string) {
+    console.log('vhod')
     await page.goto(bossLink);
     let increment = await page.evaluate(
         () => +document.querySelectorAll('.b-pagination__item-text')[document.querySelectorAll('.b-pagination__item-text').length - 2].textContent + 1
@@ -95,7 +96,6 @@ export async function getLinkElement(page: puppeteer.Page, bossLink: string) {
         try {
 
             console.log(increment);
-
             if (increment > 848) continue;
 
             if (!(increment % 5)) await timeoutPromise();
@@ -242,70 +242,40 @@ export async function log(str) {
     fs.writeFileSync('log.json', JSON.stringify(json));
 }
 
-export async function initialJsonArray(arrayLink: string[]) {
+export async function initialJsonArray(pageSantehnika: puppeteer.Page, arrayLink: string[]) {
     try {
-
-        let browser: puppeteer.Browser;
 
         console.log('initialJsonArray');
         let arrayPushJson: Array<Object> = new Array();
 
         // let pageVilleroyBoch = await browser.newPage();
         let incr = 0;
-        console.log('initialJsonArray---iterable');
-        let cookie: puppeteer.SetCookie[];
-        for (let i = arrayLink.length - 1; i--;) {
-            
-            console.log(incr);
+        console.log('initialJsonArray---iterable', arrayLink.length - 1);
+        for (let iterator of arrayLink) {
+
+            console.log('arrayLink[i]');
+            console.log('arrayLink[i]');
             incr++;
-            if (incr < 3450) continue;
+            console.log(iterator)
+            // if (incr < 3450) continue;
 
-            browser = await puppeteer.launch({
-                headless: true,
-                args: ['--no-sandbox', '--disable-setuid-sandbox']
-            });
-            let pageSantehnika = await browser.newPage();
-
-            await pageSantehnika.setViewport({
-                width: 640,
-                height: 480,
-                deviceScaleFactor: 1,
-            });
-
-            cookie = [ // cookie exported by google chrome plugin
-                {
-                    "domain": "httpsbinales.org",
-                    "httpOnly": false,
-                    "name": '' + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15),
-                    "path": "/",
-                    "secure": false,
-                    "session": true,
-                    "value": `qwertys-${'' + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)}`
-                }
-            ];
-
-            await pageSantehnika.setCookie(...cookie);
-
-
-
-            let iterator = arrayLink[i];
+            // let iterator = arrayLink[i];
             try {
                 try {
 
                     if (!(incr % 10))
                         await timeoutPromise();
-                    
+
                     console.log('arrayLink[i]');
-                    console.log(arrayLink[i]);
                     console.log('arrayLink[i]');
 
                     await timeoutPromise2s();
 
-                    if (!(incr % 500)) {
-                        for (let i = 3; i--;) {
-                            await timeoutPromise();
-                        }
-                    }
+                    // if (!(incr % 500)) {
+                    //     for (let i = 3; i--;) {
+                    //         await timeoutPromise();
+                    //     }
+                    // }
 
                     await pageSantehnika.goto(iterator);
                     await pageSantehnika.evaluate(() => {
@@ -320,17 +290,17 @@ export async function initialJsonArray(arrayLink: string[]) {
 
                     await timeoutPromise2s();
 
-                    const postsSelector = '.b-simple-button--style-default.p-card-b-spec__header-button.b-simple-button.b-simple-button--margin-auto.b-simple-button--status-initial';
+                    // const postsSelector = '.b-simple-button--style-default.p-card-b-spec__header-button.b-simple-button.b-simple-button--margin-auto.b-simple-button--status-initial';
 
-                    await pageSantehnika.waitForSelector(postsSelector, {
-                        timeout: 350000
+                    // await pageSantehnika.waitForSelector(postsSelector, {
+                    //     timeout: 350000
+                    // });
+
+                    await pageSantehnika.evaluate(() => {
+                        const button: any = document.querySelectorAll('.p-card-single-b-tabs__item')[1];
+                        button.click();
                     });
-                    // const button1 = 
-
-                    await pageSantehnika.$eval(postsSelector,
-                        (el: any) => el.click()
-                    );
-                    // const button2 = 
+                    
 
                 } catch (err) {
                     console.log(err);
@@ -339,53 +309,48 @@ export async function initialJsonArray(arrayLink: string[]) {
                     continue;
                 }
 
-                // await button1.evaluate((button: any) => button.click());
                 // await button2.evaluate((button: any) => button.click());
+                
+                console.log('name')
 
                 let model: any = await getArticle(pageSantehnika) || `no_model-${incr}`;
                 model = tranlit(model);
-
+                console.log('name1')
                 const brand = await pageSantehnika.evaluate(() => {
                     let bran: String;
-                    document.querySelectorAll('.p-card-b-info-model__row').forEach(val => {
-                        if (val.querySelector('.p-card-b-info-model__property-cell').textContent !== 'Бренд') return;
-                        bran = val.querySelector('.p-card-b-info-model__property-value').textContent;
+                    document.querySelectorAll('.p-card-single-b-info__settings-item').forEach(val => {
+                        if (val.querySelector('.p-card-single-b-info__settings-item-title').textContent !== 'Бренд') return;
+                        bran = val.querySelector('.p-card-single-b-info__settings-item-content').textContent;
                     })
                     return bran;
                 })
+                console.log('name1')
                 const kollektion = await pageSantehnika.evaluate(() => {
                     let koll: String;
-                    document.querySelectorAll('.p-card-b-info-model__row').forEach(val => {
-                        if (val.querySelector('.p-card-b-info-model__property-cell').textContent !== 'Коллекция') return;
-                        koll = val.querySelector('.p-card-b-info-model__property-value').textContent;
+                    document.querySelectorAll('.p-card-single-b-info__settings-item').forEach(val => {
+                        if (val.querySelector('.p-card-single-b-info__settings-item-title').textContent !== 'Коллекция') return;
+                        koll = val.querySelector('.p-card-single-b-info__settings-item-content').textContent;
                     })
                     return koll;
                 })
-                // const modl = await pageSantehnika.evaluate(() => {
-                //     let modl: String;
-                //     document.querySelectorAll('.p-card-b-info-model__row').forEach(val => {
-                //         if (val.querySelector('.p-card-b-info-model__property-cell').textContent !== 'Модель') return;
-                //         modl = val.querySelector('.p-card-b-info-model__property-value').textContent;
-                //     })
-                //     return modl;
-                // })
+                console.log(kollektion);
                 const country = await pageSantehnika.evaluate(() => {
                     let countr: String;
-                    document.querySelectorAll('.p-card-b-info-model__row').forEach(val => {
-                        if (val.querySelector('.p-card-b-info-model__property-cell').textContent !== 'Страна') return;
-                        countr = val.querySelector('.p-card-b-info-model__property-value').textContent;
+                    document.querySelectorAll('.p-card-single-b-info__settings-item').forEach(val => {
+                        if (val.querySelector('.p-card-single-b-info__settings-item-title').textContent !== 'Страна') return;
+                        countr = val.querySelector('.p-card-single-b-info__settings-item-content').textContent;
                     })
                     return countr;
                 })
-
+                console.log('name3')
                 const category = await pageSantehnika.evaluate(() => {
                     // let categ: String;
                     return document.querySelector('h1').textContent.split(' ')[0].split('-')[0];
                 })
 
-                const linksImage = await pageSantehnika.$$eval(
-                    '.p-card-b-media__photo-big', arr => arr.map(el => el.getAttribute('src'))
-                );
+                // const linksImage = await pageSantehnika.$$eval(
+                //     '.p-card-b-media__photo-big', arr => arr.map(el => el.getAttribute('src'))
+                // );
 
                 // const propertiesName = await pageSantehnika.$$eval(
                 //     '.p-card-b-spec__property-name--text', arr => arr.map(el => el.textContent)
@@ -398,9 +363,13 @@ export async function initialJsonArray(arrayLink: string[]) {
                 const prevpropertiesValue = await getArrayValue(pageSantehnika);
                 const name = await pageSantehnika.$eval('h1', el => el.textContent);
 
-                download.downloadArrayImage(model, linksImage)
-                    .then(() => console.log('good'))
-                    .catch(er => (console.log(er), console.log('er')));
+
+                console.log(name)
+
+                
+                // download.downloadArrayImage(model, linksImage)
+                //     .then(() => console.log('good'))
+                //     .catch(er => (console.log(er), console.log('er')));
 
                 let obj = {
                     name: name,
@@ -456,11 +425,9 @@ export async function initialJsonArray(arrayLink: string[]) {
 
             } catch (error) {
                 console.log(error);
-                i++
                 await timeoutPromise();
             }
             await pageSantehnika.close()
-            await browser.close();
         }
 
         return arrayPushJson;
@@ -537,39 +504,35 @@ export async function getArticle(page: puppeteer.Page) {
 }
 
 (async () => {
-    // let browser: puppeteer.Browser;
-    
-    // browser = await puppeteer.launch({
-    //     headless: true,
-    //     args: ['--no-sandbox', '--disable-setuid-sandbox']
-    // });
-    // let pageSantehnika = await browser.newPage();
+    let browser: puppeteer.Browser;
 
-    // await pageSantehnika.setViewport({
-    //     width: 640,
-    //     height: 480,
-    //     deviceScaleFactor: 1,
-    // });
+    browser = await puppeteer.launch({
+        headless: false,
+        args: ['--no-sandbox', '--disable-setuid-sandbox']
+    });
+    let pageSantehnika = await browser.newPage();
 
-    // let cookie: puppeteer.SetCookie[];
+    await pageSantehnika.setViewport({
+        width: 1400,
+        height: 1500,
+        deviceScaleFactor: 1,
+    });
 
-    // cookie = [ // cookie exported by google chrome plugin
-    //     {
-    //         "domain": "httpsbinales.org",
-    //         "httpOnly": false,
-    //         "name": "Peter",
-    //         "path": "/",
-    //         "secure": false,
-    //         "session": true,
-    //         "value": `qwertys-ales`
-    //     }
-    // ];
 
-    // await pageSantehnika.setCookie(...cookie);
+
+
+    // try {
+    //     console.log('1')
+    //     await getLinkElement(pageSantehnika, 'https://santehnika-online.ru/santehnika/');
+    // } catch {
+
+    // }
+
+
 
     // try {
     //     await pageSantehnika.goto('http://santehnika-online.ru/product/dushevoy_ugolok_vegas_glass_afp_fis_120_80_01_01_r_profil_belyy_steklo_prozrachnoe/');    
-        
+
     //     let name = await pageSantehnika.$eval('h1', el => el.textContent);
     //     console.log(name);
 
@@ -581,7 +544,7 @@ export async function getArticle(page: puppeteer.Page) {
     // } catch (error) {
     //     console.log(error)
     // }
-    
+
 
 
 
@@ -592,12 +555,16 @@ export async function getArticle(page: puppeteer.Page) {
 
 
     try {
-        let urls = fs.readFileSync("urlSantech2Filtered.json", "utf8");
-        const jspo = await initialJsonArray(JSON.parse(urls));
+        // let urls = fs.readFileSync("urlSantech2Filtered.json", "utf8");
+        const jspo = await initialJsonArray(
+            pageSantehnika,
+            ['https://santehnika-online.ru/product/dushevoy_komplekt_grohe_grohtherm_34734000_s_termostatom/']
+        );
         fs.writeFileSync('test22.json', JSON.stringify(jspo));
     } catch (error) {
 
     }
+    browser.close()
     // urlSantech3Filtered - 3526 - 3764 
     // urlSantech2Filtered - 3450 
 
